@@ -1,0 +1,66 @@
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { useAuth } from "@/hooks/useAuth";
+import { i18n } from "@/lib/i18n";
+import { useEffect } from "react";
+
+// Pages
+import Home from "@/pages/home";
+import Dashboard from "@/pages/dashboard";
+import MedicineSearch from "@/pages/medicine-search";
+import AIConsultation from "@/pages/ai-consultation";
+import Profile from "@/pages/profile";
+import TermsOfService from "@/pages/legal/terms-of-service";
+import PrivacyPolicy from "@/pages/legal/privacy-policy";
+import MedicalDisclaimer from "@/pages/legal/medical-disclaimer";
+import NotFound from "@/pages/not-found";
+
+function Router() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/medicines" component={MedicineSearch} />
+          <Route path="/consultation" component={AIConsultation} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/profile" component={Profile} />
+          <Route path="/legal/terms" component={TermsOfService} />
+          <Route path="/legal/privacy" component={PrivacyPolicy} />
+          <Route path="/legal/disclaimer" component={MedicalDisclaimer} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function App() {
+  useEffect(() => {
+    // Initialize i18n
+    i18n.init();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
