@@ -74,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Symptoms are required' });
       }
 
-      const response = await aiService.generateMedicalResponse(symptoms, userId);
+      const response = await aiService.generateMedicalResponse(symptoms, userId, req.body.language, req.body.prompt);
       res.json(response);
     } catch (error) {
       console.error('AI consultation error:', error);
@@ -89,13 +89,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // In production, you would use OCR to extract text from image
-      const mockPrescriptionText = "Paracetamol 500mg, 2 tablets daily for 5 days";
+      // For now, we simulate OCR extraction
+      const mockPrescriptionText = `
+        Patient: John Doe
+        Date: ${new Date().toLocaleDateString()}
+        
+        Rx:
+        1. Paracetamol 500mg - Take 1 tablet every 6 hours for fever/pain
+        2. Amoxicillin 500mg - Take 1 capsule 3 times daily for 7 days
+        3. Omeprazole 20mg - Take 1 tablet before breakfast
+        
+        Instructions: Take medications as prescribed. Complete the full course of antibiotics.
+        
+        Dr. Smith, MD
+        License: #123456
+      `;
       
       const analysis = await aiService.analyzePrescription(mockPrescriptionText);
-      res.json(analysis);
+      
+      // Enhanced response with structured data
+      const enhancedAnalysis = {
+        success: true,
+        prescriptionText: mockPrescriptionText,
+        medicines: [
+          {
+            name: "Paracetamol",
+            dosage: "500mg",
+            frequency: "Every 6 hours",
+            instructions: "For fever/pain",
+            available: true,
+            interactions: []
+          },
+          {
+            name: "Amoxicillin",
+            dosage: "500mg",
+            frequency: "3 times daily",
+            duration: "7 days",
+            instructions: "Complete full course",
+            available: true,
+            interactions: ["Avoid alcohol"]
+          },
+          {
+            name: "Omeprazole",
+            dosage: "20mg",
+            frequency: "Once daily",
+            instructions: "Before breakfast",
+            available: true,
+            interactions: []
+          }
+        ],
+        warnings: [
+          "Complete the full course of antibiotics",
+          "Do not exceed recommended paracetamol dose",
+          "Take omeprazole on empty stomach"
+        ],
+        confidence: 85,
+        ...analysis
+      };
+      
+      res.json(enhancedAnalysis);
     } catch (error) {
       console.error('Prescription analysis error:', error);
-      res.status(500).json({ error: 'Prescription analysis failed' });
+      res.status(500).json({ 
+        success: false,
+        error: 'Prescription analysis failed',
+        message: 'Unable to analyze prescription at this time. Please try again.' 
+      });
     }
   });
 
@@ -263,6 +322,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Import medicines error:', error);
       res.status(500).json({ error: 'Failed to import medicines' });
+    }
+  });
+
+  // Payment integration endpoints (prepared for Click, Payme, Yandex)
+  app.post('/api/payments/click/prepare', async (req, res) => {
+    try {
+      const result = await paymentService.processClickPayment(req.body);
+      res.json(result);
+    } catch (error) {
+      console.error('Click payment error:', error);
+      res.status(500).json({ error: 'Payment processing failed' });
+    }
+  });
+
+  app.post('/api/payments/payme', async (req, res) => {
+    try {
+      const result = await paymentService.processPaymePayment(req.body);
+      res.json(result);
+    } catch (error) {
+      console.error('Payme payment error:', error);
+      res.status(500).json({ error: 'Payment processing failed' });
+    }
+  });
+
+  app.post('/api/delivery/yandex/create', async (req, res) => {
+    try {
+      const result = await paymentService.createYandexDelivery(req.body);
+      res.json(result);
+    } catch (error) {
+      console.error('Yandex delivery error:', error);
+      res.status(500).json({ error: 'Delivery creation failed' });
+    }
+  });
+
+  app.get('/api/delivery/yandex/track/:claimId', async (req, res) => {
+    try {
+      const result = await paymentService.trackYandexDelivery(req.params.claimId);
+      res.json(result);
+    } catch (error) {
+      console.error('Yandex tracking error:', error);
+      res.status(500).json({ error: 'Delivery tracking failed' });
     }
   });
 

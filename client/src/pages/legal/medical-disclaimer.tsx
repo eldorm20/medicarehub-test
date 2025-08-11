@@ -196,7 +196,9 @@ export default function MedicalDisclaimerPage() {
                 </div>
                 <Button 
                   size="sm" 
-                  className="bg-red-600 hover:bg-red-700 text-white ml-4 flex items-center space-x-1"
+                  className="bg-red-600 hover:bg-red-700 text-white ml-4 flex items-center space-x-1 cursor-pointer"
+                  onClick={() => window.open('tel:103')}
+                  data-testid="emergency-call-btn"
                 >
                   <Phone className="h-4 w-4" />
                   <span>Call 103</span>
@@ -271,15 +273,33 @@ export default function MedicalDisclaimerPage() {
                   <CardTitle className="text-sm">Important Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 cursor-pointer"
+                    onClick={() => window.open('tel:103')}
+                    data-testid="report-emergency-btn"
+                  >
                     <AlertTriangle className="h-4 w-4 mr-2" />
                     Report Emergency
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start cursor-pointer"
+                    onClick={() => window.location.href = '/help-center'}
+                    data-testid="find-provider-btn"
+                  >
                     <Stethoscope className="h-4 w-4 mr-2" />
                     Find Healthcare Provider
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start cursor-pointer"
+                    onClick={() => window.location.href = '/contact-support'}
+                    data-testid="contact-support-btn"
+                  >
                     <Mail className="h-4 w-4 mr-2" />
                     Contact Support
                   </Button>

@@ -114,7 +114,12 @@ export function MedicineSearch({ onAddToCart, compact = false }: MedicineSearchP
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleAddToCart(medicine)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAddToCart(medicine);
+                          }}
+                          data-testid={`add-to-cart-${medicine.id}`}
                         >
                           <ShoppingCart className="h-3 w-3" />
                         </Button>

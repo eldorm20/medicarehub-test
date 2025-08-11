@@ -1,175 +1,353 @@
 import crypto from 'crypto';
 
-interface PaymentRequest {
+// Payment service interfaces for Uzbekistan payment systems
+interface ClickPaymentRequest {
+  service_id: string;
+  click_trans_id: string;
+  merchant_trans_id: string;
+  merchant_prepare_id: string;
   amount: number;
-  orderId: string;
-  userId: string;
-  method: 'click' | 'payme';
+  action: number;
+  error: number;
+  error_note: string;
+  sign_time: string;
+  sign_string: string;
 }
 
-interface PaymentResponse {
-  success: boolean;
-  transactionId?: string;
-  paymentUrl?: string;
-  error?: string;
+interface PaymePaymentRequest {
+  method: string;
+  params: {
+    id?: string;
+    time?: number;
+    amount?: number;
+    account?: {
+      order_id: string;
+    };
+  };
+}
+
+interface YandexDeliveryRequest {
+  items: Array<{
+    title: string;
+    cost_value: string;
+    cost_currency: string;
+    weight: number;
+    size: {
+      length: number;
+      width: number; 
+      height: number;
+    };
+  }>;
+  route_points: Array<{
+    point_id: number;
+    visit_order: number;
+    address: {
+      fullname: string;
+      coordinates: [number, number];
+      country: string;
+      city: string;
+      street: string;
+      building: string;
+    };
+    contact: {
+      name: string;
+      phone: string;
+    };
+    type: 'source' | 'destination';
+  }>;
 }
 
 export class PaymentService {
+  private clickServiceId: string;
   private clickMerchantId: string;
   private clickSecretKey: string;
   private paymeMerchantId: string;
   private paymeSecretKey: string;
+  private yandexApiKey: string;
 
   constructor() {
+    // Initialize from environment variables
+    this.clickServiceId = process.env.CLICK_SERVICE_ID || '';
     this.clickMerchantId = process.env.CLICK_MERCHANT_ID || '';
     this.clickSecretKey = process.env.CLICK_SECRET_KEY || '';
     this.paymeMerchantId = process.env.PAYME_MERCHANT_ID || '';
     this.paymeSecretKey = process.env.PAYME_SECRET_KEY || '';
+    this.yandexApiKey = process.env.YANDEX_DELIVERY_API_KEY || '';
   }
 
-  async processPayment(request: PaymentRequest): Promise<PaymentResponse> {
+  // Click Payment System Integration
+  async processClickPayment(request: ClickPaymentRequest): Promise<any> {
     try {
-      if (request.method === 'click') {
-        return await this.processClickPayment(request);
-      } else if (request.method === 'payme') {
-        return await this.processPaymePayment(request);
-      } else {
+      // Verify Click signature
+      if (!this.verifyClickSignature(request)) {
         return {
-          success: false,
-          error: 'Unsupported payment method',
+          click_trans_id: request.click_trans_id,
+          merchant_trans_id: request.merchant_trans_id,
+          merchant_prepare_id: request.merchant_prepare_id,
+          error: -1,
+          error_note: 'Invalid signature'
         };
       }
+
+      // Handle different Click actions
+      switch (request.action) {
+        case 0: // Prepare
+          return await this.prepareClickPayment(request);
+        case 1: // Complete
+          return await this.completeClickPayment(request);
+        default:
+          return {
+            click_trans_id: request.click_trans_id,
+            merchant_trans_id: request.merchant_trans_id,
+            merchant_prepare_id: request.merchant_prepare_id,
+            error: -3,
+            error_note: 'Invalid action'
+          };
+      }
     } catch (error) {
-      console.error('Payment processing error:', error);
+      console.error('Click payment processing error:', error);
       return {
-        success: false,
-        error: 'Payment processing failed',
+        click_trans_id: request.click_trans_id,
+        merchant_trans_id: request.merchant_trans_id,
+        merchant_prepare_id: request.merchant_prepare_id,
+        error: -9,
+        error_note: 'System error'
       };
     }
   }
 
-  private async processClickPayment(request: PaymentRequest): Promise<PaymentResponse> {
+  private verifyClickSignature(request: ClickPaymentRequest): boolean {
+    const signString = request.click_trans_id + 
+                      request.service_id + 
+                      request.merchant_trans_id + 
+                      request.amount + 
+                      request.action + 
+                      request.sign_time;
+    
+    const hash = crypto
+      .createHash('md5')
+      .update(signString + this.clickSecretKey)
+      .digest('hex');
+    
+    return hash === request.sign_string;
+  }
+
+  private async prepareClickPayment(request: ClickPaymentRequest): Promise<any> {
+    // Validate order and prepare payment
+    // In production, check if order exists and amount matches
+    return {
+      click_trans_id: request.click_trans_id,
+      merchant_trans_id: request.merchant_trans_id,
+      merchant_prepare_id: Date.now().toString(),
+      error: 0,
+      error_note: 'Success'
+    };
+  }
+
+  private async completeClickPayment(request: ClickPaymentRequest): Promise<any> {
+    // Complete the payment and update order status
+    // In production, mark order as paid and trigger fulfillment
+    return {
+      click_trans_id: request.click_trans_id,
+      merchant_trans_id: request.merchant_trans_id,
+      merchant_prepare_id: request.merchant_prepare_id,
+      error: 0,
+      error_note: 'Success'
+    };
+  }
+
+  // Payme Payment System Integration
+  async processPaymePayment(request: PaymePaymentRequest): Promise<any> {
     try {
-      // Click payment integration
-      const timestamp = Date.now().toString();
-      const signString = `${timestamp}${this.clickMerchantId}${request.orderId}${request.amount}`;
-      const signature = crypto
-        .createHmac('sha256', this.clickSecretKey)
-        .update(signString)
-        .digest('hex');
-
-      const paymentData = {
-        merchant_id: this.clickMerchantId,
-        amount: request.amount,
-        order_id: request.orderId,
-        timestamp,
-        signature,
-        return_url: `${process.env.BASE_URL || 'http://localhost:5000'}/payment/success`,
-        cancel_url: `${process.env.BASE_URL || 'http://localhost:5000'}/payment/cancel`,
+      switch (request.method) {
+        case 'CheckPerformTransaction':
+          return await this.checkPaymeTransaction(request);
+        case 'CreateTransaction':
+          return await this.createPaymeTransaction(request);
+        case 'PerformTransaction':
+          return await this.performPaymeTransaction(request);
+        case 'CancelTransaction':
+          return await this.cancelPaymeTransaction(request);
+        case 'CheckTransaction':
+          return await this.checkPaymeTransactionStatus(request);
+        default:
+          return {
+            error: {
+              code: -32601,
+              message: 'Method not found'
+            }
+          };
+      }
+    } catch (error) {
+      console.error('Payme payment processing error:', error);
+      return {
+        error: {
+          code: -32603,
+          message: 'Internal error'
+        }
       };
+    }
+  }
 
-      // In production, make actual API call to Click
-      const response = await fetch('https://api.click.uz/payment/create', {
+  private async checkPaymeTransaction(request: PaymePaymentRequest): Promise<any> {
+    // Validate transaction parameters
+    const { account } = request.params || {};
+    if (!account?.order_id) {
+      return {
+        error: {
+          code: -31001,
+          message: 'Order not found'
+        }
+      };
+    }
+
+    return {
+      result: {
+        allow: true
+      }
+    };
+  }
+
+  private async createPaymeTransaction(request: PaymePaymentRequest): Promise<any> {
+    // Create new transaction
+    const transactionId = Date.now().toString();
+    
+    return {
+      result: {
+        create_time: Date.now(),
+        transaction: transactionId,
+        state: 1 // Created
+      }
+    };
+  }
+
+  private async performPaymeTransaction(request: PaymePaymentRequest): Promise<any> {
+    // Perform the transaction
+    return {
+      result: {
+        perform_time: Date.now(),
+        transaction: request.params?.id,
+        state: 2 // Performed
+      }
+    };
+  }
+
+  private async cancelPaymeTransaction(request: PaymePaymentRequest): Promise<any> {
+    // Cancel transaction
+    return {
+      result: {
+        cancel_time: Date.now(),
+        transaction: request.params?.id,
+        state: -1 // Cancelled
+      }
+    };
+  }
+
+  private async checkPaymeTransactionStatus(request: PaymePaymentRequest): Promise<any> {
+    // Check transaction status
+    return {
+      result: {
+        create_time: Date.now() - 300000, // 5 minutes ago
+        perform_time: Date.now() - 60000,  // 1 minute ago
+        cancel_time: 0,
+        transaction: request.params?.id,
+        state: 2,
+        reason: null
+      }
+    };
+  }
+
+  // Yandex Delivery Integration
+  async createYandexDelivery(request: YandexDeliveryRequest): Promise<any> {
+    try {
+      const response = await fetch('https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${this.yandexApiKey}`,
           'Content-Type': 'application/json',
+          'Accept-Language': 'en'
         },
-        body: JSON.stringify(paymentData),
+        body: JSON.stringify({
+          items: request.items,
+          route_points: request.route_points,
+          client_requirements: {
+            taxi_class: 'courier'
+          }
+        })
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        return {
-          success: true,
-          transactionId: result.transaction_id,
-          paymentUrl: result.payment_url,
-        };
-      } else {
-        return {
-          success: false,
-          error: 'Click payment initialization failed',
-        };
+      if (!response.ok) {
+        throw new Error(`Yandex API error: ${response.statusText}`);
       }
-    } catch (error) {
-      console.error('Click payment error:', error);
-      return {
-        success: false,
-        error: 'Click payment service unavailable',
-      };
-    }
-  }
 
-  private async processPaymePayment(request: PaymentRequest): Promise<PaymentResponse> {
-    try {
-      // Payme payment integration
-      const account = {
-        order_id: request.orderId,
-      };
-
-      const paymentUrl = `https://checkout.paycom.uz/${btoa(JSON.stringify({
-        m: this.paymeMerchantId,
-        ac: account,
-        a: request.amount * 100, // Payme uses tiyin (1/100 som)
-        c: `${process.env.BASE_URL || 'http://localhost:5000'}/payment/payme/callback`,
-      }))}`;
-
+      const data = await response.json();
       return {
         success: true,
-        paymentUrl,
-        transactionId: `payme_${request.orderId}_${Date.now()}`,
+        claim_id: data.id,
+        status: data.status,
+        version: data.version
       };
     } catch (error) {
-      console.error('Payme payment error:', error);
+      console.error('Yandex delivery error:', error);
       return {
         success: false,
-        error: 'Payme payment service unavailable',
+        error: 'Failed to create delivery order'
       };
     }
   }
 
-  async verifyPayment(transactionId: string, method: 'click' | 'payme'): Promise<boolean> {
+  async trackYandexDelivery(claimId: string): Promise<any> {
     try {
-      if (method === 'click') {
-        return await this.verifyClickPayment(transactionId);
-      } else if (method === 'payme') {
-        return await this.verifyPaymePayment(transactionId);
-      }
-      return false;
-    } catch (error) {
-      console.error('Payment verification error:', error);
-      return false;
-    }
-  }
-
-  private async verifyClickPayment(transactionId: string): Promise<boolean> {
-    try {
-      const response = await fetch(`https://api.click.uz/payment/status/${transactionId}`, {
+      const response = await fetch(`https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${claimId}`, {
         headers: {
-          'Authorization': `Bearer ${this.clickSecretKey}`,
-        },
+          'Authorization': `Bearer ${this.yandexApiKey}`,
+          'Accept-Language': 'en'
+        }
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        return result.status === 'completed';
+      if (!response.ok) {
+        throw new Error(`Yandex API error: ${response.statusText}`);
       }
-      return false;
+
+      const data = await response.json();
+      return {
+        success: true,
+        status: data.status,
+        eta: data.eta,
+        performer_info: data.performer_info
+      };
     } catch (error) {
-      console.error('Click verification error:', error);
-      return false;
+      console.error('Yandex tracking error:', error);
+      return {
+        success: false,
+        error: 'Failed to track delivery'
+      };
     }
   }
 
-  private async verifyPaymePayment(transactionId: string): Promise<boolean> {
-    try {
-      // Payme verification logic
-      // This would involve checking the transaction status through Payme API
-      return true; // Simplified for demo
-    } catch (error) {
-      console.error('Payme verification error:', error);
-      return false;
-    }
+  // General payment utilities
+  generateTransactionId(): string {
+    return crypto.randomUUID();
+  }
+
+  calculateServiceFee(amount: number, paymentMethod: 'click' | 'payme'): number {
+    // Standard service fees for Uzbekistan payment systems
+    const feeRates = {
+      click: 0.005, // 0.5%
+      payme: 0.008  // 0.8%
+    };
+    
+    return Math.round(amount * feeRates[paymentMethod]);
+  }
+
+  validatePaymentAmount(amount: number): boolean {
+    // Validate payment amount constraints
+    const minAmount = 1000; // 1,000 UZS
+    const maxAmount = 100000000; // 100,000,000 UZS
+    
+    return amount >= minAmount && amount <= maxAmount;
   }
 }
 
 export const paymentService = new PaymentService();
+export default PaymentService;

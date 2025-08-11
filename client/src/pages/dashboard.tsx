@@ -2,8 +2,11 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { ClientDashboard } from '@/components/dashboard/client-dashboard';
+import { PharmacySellerDashboard } from '@/components/dashboard/pharmacy-seller-dashboard';
+import { PharmacyOwnerDashboard } from '@/components/dashboard/pharmacy-owner-dashboard';
 import { AnalyticsDashboard } from '@/components/dashboard/analytics-dashboard';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 import { 
   User, 
   Store, 
@@ -18,11 +21,12 @@ import { motion } from 'framer-motion';
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
+  const { t } = useLanguage();
 
   // Mock user for demo - in production this would come from auth
   const mockUser = {
     id: 'user123',
-    role: 'super_admin' as const,
+    role: 'client' as const,
     firstName: 'John',
     lastName: 'Doe',
   };
@@ -55,15 +59,15 @@ export default function Dashboard() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'client':
-        return 'Client Dashboard';
+        return t('dashboard.client_title') || 'Client Dashboard';
       case 'pharmacy_seller':
-        return 'Pharmacy Seller Dashboard';
+        return t('dashboard.seller_title') || 'Pharmacy Seller Dashboard';
       case 'pharmacy_owner':
-        return 'Pharmacy Owner Dashboard';
+        return t('dashboard.owner_title') || 'Pharmacy Owner Dashboard';
       case 'super_admin':
-        return 'SuperAdmin Dashboard';
+        return t('dashboard.admin_title') || 'SuperAdmin Dashboard';
       default:
-        return 'Dashboard';
+        return t('navigation.dashboard') || 'Dashboard';
     }
   };
 
@@ -99,26 +103,32 @@ export default function Dashboard() {
           <ClientDashboard userId={currentUser.id} />
         )}
 
-        {(currentUser.role === 'pharmacy_seller' || 
-          currentUser.role === 'pharmacy_owner' || 
-          currentUser.role === 'super_admin') && (
+        {currentUser.role === 'pharmacy_seller' && (
+          <PharmacySellerDashboard userId={currentUser.id} />
+        )}
+
+        {currentUser.role === 'pharmacy_owner' && (
+          <PharmacyOwnerDashboard userId={currentUser.id} />
+        )}
+
+        {currentUser.role === 'super_admin' && (
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview" className="flex items-center space-x-2">
+            <TabsList className="grid w-full grid-cols-4 bg-muted/50 dark:bg-muted/20">
+              <TabsTrigger value="overview" className="flex items-center space-x-2 data-[state=active]:bg-background dark:data-[state=active]:bg-background">
                 <Activity className="h-4 w-4" />
-                <span>Overview</span>
+                <span>{t('dashboard.overview') || 'Overview'}</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center space-x-2">
+              <TabsTrigger value="analytics" className="flex items-center space-x-2 data-[state=active]:bg-background dark:data-[state=active]:bg-background">
                 <BarChart3 className="h-4 w-4" />
-                <span>Analytics</span>
+                <span>{t('dashboard.analytics') || 'Analytics'}</span>
               </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex items-center space-x-2">
-                <Package className="h-4 w-4" />
-                <span>Inventory</span>
+              <TabsTrigger value="pharmacies" className="flex items-center space-x-2 data-[state=active]:bg-background dark:data-[state=active]:bg-background">
+                <Building className="h-4 w-4" />
+                <span>{t('dashboard.pharmacies') || 'Pharmacies'}</span>
               </TabsTrigger>
-              <TabsTrigger value="users" className="flex items-center space-x-2">
+              <TabsTrigger value="users" className="flex items-center space-x-2 data-[state=active]:bg-background dark:data-[state=active]:bg-background">
                 <Users className="h-4 w-4" />
-                <span>Users</span>
+                <span>{t('dashboard.users') || 'Users'}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -130,16 +140,16 @@ export default function Dashboard() {
               <AnalyticsDashboard />
             </TabsContent>
 
-            <TabsContent value="inventory">
-              <Card>
+            <TabsContent value="pharmacies">
+              <Card className="bg-card dark:bg-card border-border dark:border-border">
                 <CardContent className="p-6">
                   <div className="text-center py-12">
-                    <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Inventory Management
+                    <Building className="h-16 w-16 text-muted-foreground dark:text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground dark:text-foreground mb-2">
+                      {t('dashboard.pharmacy_management') || 'Pharmacy Management'}
                     </h3>
-                    <p className="text-muted-foreground">
-                      Inventory management features would be implemented here
+                    <p className="text-muted-foreground dark:text-muted-foreground mb-4">
+                      {t('dashboard.pharmacy_desc') || 'Manage registered pharmacies, licenses, and compliance'}
                     </p>
                   </div>
                 </CardContent>
@@ -147,15 +157,15 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="users">
-              <Card>
+              <Card className="bg-card dark:bg-card border-border dark:border-border">
                 <CardContent className="p-6">
                   <div className="text-center py-12">
-                    <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      User Management
+                    <Users className="h-16 w-16 text-muted-foreground dark:text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground dark:text-foreground mb-2">
+                      {t('dashboard.user_management') || 'User Management'}
                     </h3>
-                    <p className="text-muted-foreground">
-                      User management features would be implemented here
+                    <p className="text-muted-foreground dark:text-muted-foreground mb-4">
+                      {t('dashboard.user_desc') || 'Manage system users, roles, and permissions'}
                     </p>
                   </div>
                 </CardContent>

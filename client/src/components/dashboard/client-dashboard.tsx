@@ -216,7 +216,11 @@ export function ClientDashboard({ userId }: ClientDashboardProps) {
               <p className="text-sm text-muted-foreground mb-4">
                 Ask questions about your health or upload prescriptions
               </p>
-              <Button className="w-full bg-gradient-to-r from-primary to-primary-600 hover:opacity-90">
+              <Button 
+                className="w-full bg-gradient-to-r from-primary to-primary-600 hover:opacity-90 cursor-pointer"
+                onClick={() => window.location.href = '/ai-consultation'}
+                data-testid="ai-assistant-btn"
+              >
                 Start Conversation
               </Button>
             </CardContent>
@@ -236,7 +240,13 @@ export function ClientDashboard({ userId }: ClientDashboardProps) {
                 <p className="text-sm text-muted-foreground mb-3">
                   Take a photo or upload prescription
                 </p>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="cursor-pointer"
+                  onClick={() => window.location.href = '/ai-consultation'}
+                  data-testid="upload-image-btn"
+                >
                   Upload Image
                 </Button>
               </div>

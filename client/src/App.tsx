@@ -13,9 +13,14 @@ import { useEffect } from "react";
 // Pages
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
+import Orders from "@/pages/orders";
 import MedicineSearch from "@/pages/medicine-search";
 import AIConsultation from "@/pages/ai-consultation";
 import Profile from "@/pages/profile";
+import HelpCenter from "@/pages/help-center";
+import ContactSupport from "@/pages/contact-support";
+import PrescriptionAnalysis from "@/pages/prescription-analysis";
+import SymptomChecker from "@/pages/symptom-checker";
 import TermsOfService from "@/pages/legal/terms-of-service";
 import PrivacyPolicy from "@/pages/legal/privacy-policy";
 import MedicalDisclaimer from "@/pages/legal/medical-disclaimer";
@@ -30,10 +35,19 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/medicine-search" component={MedicineSearch} />
           <Route path="/medicines" component={MedicineSearch} />
+          <Route path="/ai-consultation" component={AIConsultation} />
           <Route path="/consultation" component={AIConsultation} />
+          <Route path="/orders" component={Orders} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/profile" component={Profile} />
+          <Route path="/help-center" component={HelpCenter} />
+          <Route path="/help" component={HelpCenter} />
+          <Route path="/contact-support" component={ContactSupport} />
+          <Route path="/contact" component={ContactSupport} />
+          <Route path="/prescription-analysis" component={PrescriptionAnalysis} />
+          <Route path="/symptom-checker" component={SymptomChecker} />
           <Route path="/legal/terms" component={TermsOfService} />
           <Route path="/legal/privacy" component={PrivacyPolicy} />
           <Route path="/legal/disclaimer" component={MedicalDisclaimer} />
