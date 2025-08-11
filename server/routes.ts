@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { aiService } from "./services/aiService";
@@ -265,12 +266,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve uploaded files
+  // Serve uploaded files with security headers
   app.use('/uploads', (req, res, next) => {
-    // Add security headers for file serving
     res.setHeader('X-Content-Type-Options', 'nosniff');
     next();
-  }, require('express').static('uploads'));
+  }, express.static('uploads'));
 
   const httpServer = createServer(app);
   return httpServer;
