@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 export function Header() {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const getNavigationForRole = (role: string) => {
@@ -146,9 +146,15 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="flex items-center text-red-600 dark:text-red-400">
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      logout();
+                      window.location.href = '/';
+                    }} 
+                    className="flex items-center text-red-600 dark:text-red-400"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    {i18n.t('header.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -1,57 +1,93 @@
-import React, { useState } from 'react';
-import { Button } from './button';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import { Globe, Check } from 'lucide-react';
-import { useLanguage } from '@/hooks/useLanguage';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Globe } from 'lucide-react';
+import { i18n, type Language } from '@/lib/i18n';
 
 export function LanguageSelector() {
-  const { language, availableLanguages, changeLanguage } = useLanguage();
-  const [open, setOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(i18n.getLanguage());
 
-  const handleLanguageChange = (langCode: any) => {
-    changeLanguage(langCode);
-    setOpen(false);
+  useEffect(() => {
+    const handleLanguageChange = (event: CustomEvent) => {
+      setCurrentLanguage(event.detail as Language);
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
+    };
+  }, []);
+
+  const handleLanguageChange = (language: Language) => {
+    i18n.setLanguage(language);
+    setCurrentLanguage(language);
+    // Force page refresh to apply translations
+    setTimeout(() => window.location.reload(), 100);
   };
 
-  const currentLanguage = availableLanguages.find(lang => lang.code === language);
+  const getLanguageLabel = (lang: Language) => {
+    switch (lang) {
+      case 'uz':
+        return 'O\'zbek';
+      case 'ru':
+        return 'Русский';
+      case 'en':
+        return 'English';
+      default:
+        return 'English';
+    }
+  };
+
+  const getCurrentLanguageFlag = (lang: Language) => {
+    switch (lang) {
+      case 'uz':
+        return '🇺🇿';
+      case 'ru':
+        return '🇷🇺';
+      case 'en':
+        return '🇺🇸';
+      default:
+        return '🇺🇸';
+    }
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center space-x-2 bg-white/10 dark:bg-slate-800/50 hover:bg-white/20 dark:hover:bg-slate-700/50 backdrop-blur-sm transition-all duration-200"
-          data-testid="language-selector-trigger"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center space-x-2 bg-white/10 dark:bg-slate-800/50 hover:bg-white/20 dark:hover:bg-slate-700/50 backdrop-blur-sm"
         >
-          <Globe className="h-4 w-4 text-foreground dark:text-foreground" />
-          <span className="text-sm font-medium text-foreground dark:text-foreground">
-            {currentLanguage?.flag} {currentLanguage?.code.toUpperCase()}
-          </span>
+          <Globe className="h-4 w-4" />
+          <span className="text-lg">{getCurrentLanguageFlag(currentLanguage)}</span>
+          <span className="hidden sm:block text-sm">{getLanguageLabel(currentLanguage)}</span>
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-44 p-2 bg-background/95 backdrop-blur-sm border border-border/50 dark:bg-background/90 dark:border-border/30">
-        <div className="space-y-1">
-          {availableLanguages.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className={`w-full text-left px-3 py-2 text-sm rounded-md hover:bg-accent/80 dark:hover:bg-accent/60 transition-colors flex items-center justify-between ${
-                language === lang.code ? 'bg-accent text-accent-foreground' : 'text-foreground dark:text-foreground'
-              }`}
-              data-testid={`language-option-${lang.code}`}
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-base">{lang.flag}</span>
-                <span className="font-medium">{lang.name}</span>
-              </div>
-              {language === lang.code && (
-                <Check className="h-4 w-4 text-primary" />
-              )}
-            </button>
-          ))}
-        </div>
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('uz')}
+          className={currentLanguage === 'uz' ? 'bg-primary/10' : ''}
+        >
+          <span className="mr-2">🇺🇿</span>
+          O'zbek
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('ru')}
+          className={currentLanguage === 'ru' ? 'bg-primary/10' : ''}
+        >
+          <span className="mr-2">🇷🇺</span>
+          Русский
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('en')}
+          className={currentLanguage === 'en' ? 'bg-primary/10' : ''}
+        >
+          <span className="mr-2">🇺🇸</span>
+          English
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

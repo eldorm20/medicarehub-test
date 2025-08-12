@@ -174,17 +174,17 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* AI Consultation */}
-            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer" onClick={() => window.location.href = '/consultation'}>
               <div className="absolute inset-0 bg-gradient-to-br from-medical-teal/10 to-medical-mint/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardHeader>
                 <div className="w-12 h-12 bg-gradient-to-br from-medical-teal to-medical-mint rounded-xl flex items-center justify-center mb-4">
                   <Bot className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle>AI Medical Assistant</CardTitle>
+                <CardTitle>{i18n.t('navigation.consultation')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Get instant medical advice powered by LLAMA AI technology
+                  Get instant medical advice powered by AI technology
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center">
@@ -200,17 +200,20 @@ export default function Home() {
                     Professional guidance
                   </li>
                 </ul>
+                <Button className="w-full mt-4" variant="outline">
+                  Start Consultation
+                </Button>
               </CardContent>
             </Card>
 
             {/* Medicine Search */}
-            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer" onClick={() => window.location.href = '/medicines'}>
               <div className="absolute inset-0 bg-gradient-to-br from-uzbek-blue/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardHeader>
                 <div className="w-12 h-12 bg-gradient-to-br from-uzbek-blue to-primary-500 rounded-xl flex items-center justify-center mb-4">
                   <Search className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle>Medicine Database</CardTitle>
+                <CardTitle>{i18n.t('navigation.medicines')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
@@ -230,11 +233,14 @@ export default function Home() {
                     Price comparison
                   </li>
                 </ul>
+                <Button className="w-full mt-4" variant="outline">
+                  Search Medicines
+                </Button>
               </CardContent>
             </Card>
 
             {/* Prescription Analysis */}
-            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer" onClick={() => window.location.href = '/prescription-analysis'}>
               <div className="absolute inset-0 bg-gradient-to-br from-amber-warm/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardHeader>
                 <div className="w-12 h-12 bg-gradient-to-br from-amber-warm to-orange-500 rounded-xl flex items-center justify-center mb-4">
@@ -260,6 +266,9 @@ export default function Home() {
                     Safety warnings
                   </li>
                 </ul>
+                <Button className="w-full mt-4" variant="outline">
+                  Analyze Prescription
+                </Button>
               </CardContent>
             </Card>
           </div>

@@ -302,17 +302,23 @@ export default function SymptomChecker() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="h-20 flex flex-col space-y-2">
-                    <Stethoscope className="h-6 w-6" />
-                    <span>Book Consultation</span>
+                  <Button asChild className="h-20 flex flex-col space-y-2">
+                    <Link href="/consultation">
+                      <Stethoscope className="h-6 w-6" />
+                      <span>{i18n.t('symptomChecker.consultDoctor')}</span>
+                    </Link>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col space-y-2">
-                    <Search className="h-6 w-6" />
-                    <span>Find Medicines</span>
+                  <Button asChild variant="outline" className="h-20 flex flex-col space-y-2">
+                    <Link href="/medicines">
+                      <Search className="h-6 w-6" />
+                      <span>Find Medicines</span>
+                    </Link>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col space-y-2">
-                    <Clock className="h-6 w-6" />
-                    <span>Track Symptoms</span>
+                  <Button asChild variant="outline" className="h-20 flex flex-col space-y-2">
+                    <Link href="/orders">
+                      <Clock className="h-6 w-6" />
+                      <span>Order History</span>
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
