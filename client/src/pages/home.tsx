@@ -3,9 +3,9 @@ import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AIChatInterface } from '@/components/ai/ai-chat-interface';
-import { LoyaltyProgram } from '@/components/loyalty/loyalty-program';
+import { ChatInterface } from '@/components/ai/chat-interface';
 import { i18n } from '@/lib/i18n';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Heart, 
   Bot, 
@@ -20,11 +20,15 @@ import {
   Award,
   Users,
   BarChart3,
-  Stethoscope
+  Stethoscope,
+  LogIn,
+  UserPlus
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -74,25 +78,51 @@ export default function Home() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <Link href="/consultation">
-                  <Button 
-                    size="lg"
-                    className="px-8 py-4 bg-amber-warm hover:bg-amber-400 text-slate-900 font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl"
-                  >
-                    <Bot className="mr-2 h-5 w-5" />
-                    {i18n.t('hero.startConsultation')}
-                  </Button>
-                </Link>
-                <Link href="/medicines">
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 glass-effect hover:bg-white/20 text-white font-semibold rounded-xl transition-all duration-300 border-white/20"
-                  >
-                    <Search className="mr-2 h-5 w-5" />
-                    {i18n.t('hero.searchMedicines')}
-                  </Button>
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/consultation">
+                      <Button 
+                        size="lg"
+                        className="px-8 py-4 bg-amber-warm hover:bg-amber-400 text-slate-900 font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl"
+                      >
+                        <Bot className="mr-2 h-5 w-5" />
+                        Start AI Consultation
+                      </Button>
+                    </Link>
+                    <Link href="/medicines">
+                      <Button 
+                        variant="outline"
+                        size="lg"
+                        className="px-8 py-4 glass-effect hover:bg-white/20 text-white font-semibold rounded-xl transition-all duration-300 border-white/20"
+                      >
+                        <Search className="mr-2 h-5 w-5" />
+                        Search Medicines
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/auth/login">
+                      <Button 
+                        size="lg"
+                        className="px-8 py-4 bg-amber-warm hover:bg-amber-400 text-slate-900 font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl"
+                      >
+                        <LogIn className="mr-2 h-5 w-5" />
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/auth/register">
+                      <Button 
+                        variant="outline"
+                        size="lg"
+                        className="px-8 py-4 glass-effect hover:bg-white/20 text-white font-semibold rounded-xl transition-all duration-300 border-white/20"
+                      >
+                        <UserPlus className="mr-2 h-5 w-5" />
+                        Create Account
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </motion.div>
 
@@ -103,7 +133,28 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <AIChatInterface />
+              {isAuthenticated ? (
+                <ChatInterface />
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <Card className="w-full max-w-md glass-effect border-white/20">
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-white">Try AI Consultation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center space-y-4">
+                      <p className="text-white/80">
+                        Sign in to access our AI-powered medical consultation service
+                      </p>
+                      <Link href="/auth/login">
+                        <Button className="w-full bg-amber-warm hover:bg-amber-400 text-slate-900 font-semibold">
+                          <LogIn className="mr-2 h-4 w-4" />
+                          Sign In to Start
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -306,7 +357,103 @@ export default function Home() {
       {/* Loyalty Program Section */}
       <section className="py-20 bg-white dark:bg-slate-900">
         <div className="container mx-auto px-4">
-          <LoyaltyProgram />
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+              UzPharm Loyalty Program
+            </h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400">
+              Earn points with every purchase and consultation
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-green-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle>Silver Member</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Entry level benefits for new members
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center">
+                    <Shield className="h-4 w-4 text-green-500 mr-2" />
+                    5% discount on medicines
+                  </li>
+                  <li className="flex items-center">
+                    <Clock className="h-4 w-4 text-green-500 mr-2" />
+                    Priority customer support
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center mb-4">
+                  <Award className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle>Gold Member</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Enhanced benefits for regular customers
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center">
+                    <Shield className="h-4 w-4 text-green-500 mr-2" />
+                    10% discount on medicines
+                  </li>
+                  <li className="flex items-center">
+                    <Clock className="h-4 w-4 text-green-500 mr-2" />
+                    Free AI consultations
+                  </li>
+                  <li className="flex items-center">
+                    <Truck className="h-4 w-4 text-green-500 mr-2" />
+                    Free delivery
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                  <Heart className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle>Platinum Member</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Premium benefits for VIP customers
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center">
+                    <Shield className="h-4 w-4 text-green-500 mr-2" />
+                    15% discount on medicines
+                  </li>
+                  <li className="flex items-center">
+                    <Clock className="h-4 w-4 text-green-500 mr-2" />
+                    24/7 priority support
+                  </li>
+                  <li className="flex items-center">
+                    <Truck className="h-4 w-4 text-green-500 mr-2" />
+                    Express delivery
+                  </li>
+                  <li className="flex items-center">
+                    <Stethoscope className="h-4 w-4 text-green-500 mr-2" />
+                    Monthly health checkup
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 

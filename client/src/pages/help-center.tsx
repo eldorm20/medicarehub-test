@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { useLanguage } from '@/hooks/useLanguage';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
@@ -10,300 +9,279 @@ import {
   MessageCircle, 
   Phone, 
   Mail, 
-  Clock, 
-  CheckCircle,
-  AlertTriangle,
-  Bot,
-  Pill,
-  FileText,
-  Heart,
-  Star,
-  ArrowRight
+  Book, 
+  HelpCircle,
+  Clock,
+  Users,
+  Shield,
+  Pill
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+
+const faqs = [
+  {
+    id: '1',
+    category: 'General',
+    question: 'How does UzPharm Digital work?',
+    answer: 'UzPharm Digital is an AI-powered healthcare platform that connects you with verified pharmacies across Uzbekistan. You can consult with our AI medical assistant, search for medicines, upload prescriptions for analysis, and order medicines for delivery.'
+  },
+  {
+    id: '2',
+    category: 'AI Consultation',
+    question: 'Is the AI medical consultation reliable?',
+    answer: 'Our AI assistant uses advanced medical knowledge bases and is designed to provide helpful health information. However, it should not replace professional medical advice. Always consult with qualified healthcare providers for serious medical concerns.'
+  },
+  {
+    id: '3',
+    category: 'Orders',
+    question: 'How long does medicine delivery take?',
+    answer: 'Delivery times depend on your location and the pharmacy. Within Tashkent, most orders are delivered within 2-4 hours via Yandex Delivery. For other cities, delivery typically takes 1-2 business days.'
+  },
+  {
+    id: '4',
+    category: 'Payment',
+    question: 'What payment methods do you accept?',
+    answer: 'We accept Click, Payme, and major credit/debit cards. All payments are processed securely through encrypted channels to protect your financial information.'
+  },
+  {
+    id: '5',
+    category: 'Prescriptions',
+    question: 'How do I upload a prescription?',
+    answer: 'Go to the Prescription Analysis page and drag & drop your prescription image or PDF. Our AI will analyze the prescription and verify its authenticity, then help you find the prescribed medicines at nearby pharmacies.'
+  },
+  {
+    id: '6',
+    category: 'Account',
+    question: 'How do I change my delivery address?',
+    answer: 'You can update your delivery address in your Profile settings. Go to Profile > Personal Info and update your address information. You can also change the delivery address during checkout.'
+  }
+];
+
+const helpCategories = [
+  {
+    name: 'Getting Started',
+    icon: Book,
+    description: 'Learn the basics of using UzPharm Digital',
+    articles: 12
+  },
+  {
+    name: 'AI Consultation',
+    icon: MessageCircle,
+    description: 'How to use our AI medical assistant',
+    articles: 8
+  },
+  {
+    name: 'Medicine Search',
+    icon: Pill,
+    description: 'Finding and ordering medicines',
+    articles: 15
+  },
+  {
+    name: 'Account & Privacy',
+    icon: Shield,
+    description: 'Managing your account and privacy settings',
+    articles: 10
+  }
+];
 
 export default function HelpCenter() {
-  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const faqCategories = [
-    {
-      title: 'AI Medical Assistant',
-      icon: Bot,
-      color: 'from-blue-500 to-purple-600',
-      faqs: [
-        {
-          question: 'How accurate is the AI medical assistant?',
-          answer: 'Our AI medical assistant uses advanced medical knowledge bases and is designed to provide general health information. While highly accurate for informational purposes, it should never replace professional medical advice from qualified healthcare providers.'
-        },
-        {
-          question: 'Can the AI diagnose medical conditions?',
-          answer: 'No, our AI assistant cannot provide medical diagnoses. It can offer general health information and suggest when you should consult with a healthcare professional for proper diagnosis and treatment.'
-        },
-        {
-          question: 'Is my conversation with AI private?',
-          answer: 'Yes, all conversations are encrypted and stored securely. We follow strict privacy guidelines and never share your personal health information without your explicit consent.'
-        }
-      ]
-    },
-    {
-      title: 'Prescription Services',
-      icon: FileText,
-      color: 'from-green-500 to-teal-600',
-      faqs: [
-        {
-          question: 'How do I upload a prescription?',
-          answer: 'You can upload prescriptions by taking a clear photo or scanning the document. Our system will analyze the prescription and help you find the prescribed medications at nearby pharmacies.'
-        },
-        {
-          question: 'What image formats are supported?',
-          answer: 'We support JPEG, PNG, and JPG formats up to 5MB. Ensure the prescription is clearly visible and well-lit for best analysis results.'
-        },
-        {
-          question: 'How long does prescription analysis take?',
-          answer: 'Our AI typically analyzes prescriptions within 30-60 seconds. Complex prescriptions may take up to 2 minutes for thorough analysis.'
-        }
-      ]
-    },
-    {
-      title: 'Medicine Search & Orders',
-      icon: Pill,
-      color: 'from-orange-500 to-red-600',
-      faqs: [
-        {
-          question: 'How do I find specific medicines?',
-          answer: 'Use our medicine search feature to find from over 462,000 registered medicines in Uzbekistan. Search by name, active ingredient, or condition.'
-        },
-        {
-          question: 'Can I order prescription medicines online?',
-          answer: 'Yes, but prescription medicines require a valid prescription from a licensed healthcare provider. Our system verifies prescriptions before processing orders.'
-        },
-        {
-          question: 'What are the delivery options?',
-          answer: 'We offer pharmacy pickup and Yandex delivery services. Delivery times vary by location, typically 1-3 hours for same-day delivery in major cities.'
-        }
-      ]
-    },
-    {
-      title: 'Account & Privacy',
-      icon: Heart,
-      color: 'from-pink-500 to-rose-600',
-      faqs: [
-        {
-          question: 'How is my medical data protected?',
-          answer: 'We use bank-level encryption and comply with international healthcare data protection standards. Your medical information is stored securely and never shared without permission.'
-        },
-        {
-          question: 'Can I delete my account and data?',
-          answer: 'Yes, you can request account deletion at any time. We will permanently remove all your personal data within 30 days of your request.'
-        },
-        {
-          question: 'How do I update my profile information?',
-          answer: 'Go to your profile settings to update personal information, contact details, and health preferences. Changes are saved automatically.'
-        }
-      ]
-    }
-  ];
+  const filteredFaqs = faqs.filter(faq => {
+    const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  const quickHelp = [
-    {
-      title: 'Emergency Medical Help',
-      description: 'For immediate medical emergencies',
-      icon: AlertTriangle,
-      action: 'Call 103',
-      color: 'border-red-500 bg-red-50 dark:bg-red-950',
-      urgent: true
-    },
-    {
-      title: 'AI Medical Consultation',
-      description: 'Get instant health advice',
-      icon: Bot,
-      action: 'Start Chat',
-      color: 'border-blue-500 bg-blue-50 dark:bg-blue-950',
-      link: '/ai-consultation'
-    },
-    {
-      title: 'Contact Support',
-      description: '24/7 customer support',
-      icon: MessageCircle,
-      action: 'Contact Us',
-      color: 'border-green-500 bg-green-50 dark:bg-green-950',
-      link: '/contact'
-    },
-    {
-      title: 'Live Chat',
-      description: 'Chat with our support team',
-      icon: MessageCircle,
-      action: 'Start Chat',
-      color: 'border-purple-500 bg-purple-50 dark:bg-purple-950'
-    }
-  ];
-
-  const filteredFaqs = faqCategories.map(category => ({
-    ...category,
-    faqs: category.faqs.filter(faq =>
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(category => category.faqs.length > 0);
+  const categories = ['All', ...Array.from(new Set(faqs.map(faq => faq.category)))];
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Header */}
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="mb-4">
-              <Heart className="w-4 h-4 mr-2" />
-              Help Center
-            </Badge>
-            <h1 className="text-4xl font-bold mb-4 text-foreground dark:text-foreground">
-              How can we help you?
-            </h1>
-            <p className="text-lg text-muted-foreground dark:text-muted-foreground max-w-2xl mx-auto">
-              Find answers to common questions, get support, and learn how to make the most of UzPharm Digital
-            </p>
-          </div>
+    <div className="container mx-auto p-6 max-w-6xl">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Help Center</h1>
+          <p className="text-muted-foreground">
+            Find answers to frequently asked questions and get support
+          </p>
+        </div>
 
-          {/* Search */}
-          <div className="relative max-w-2xl mx-auto mb-12">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="Search for help articles, FAQs, or topics..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-4 text-lg"
-              data-testid="help-search-input"
-            />
-          </div>
+        {/* Search */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="relative max-w-2xl mx-auto">
+              <Input
+                placeholder="Search for help articles, FAQs, or topics..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 h-12 text-lg"
+              />
+              <Search className="absolute left-4 top-3 h-6 w-6 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Quick Help Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {quickHelp.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+            <CardContent className="p-6 text-center">
+              <MessageCircle className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+              <h3 className="font-semibold mb-2">Live Chat Support</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Chat with our support team in real-time
+              </p>
+              <Button className="w-full">Start Chat</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+            <CardContent className="p-6 text-center">
+              <Phone className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <h3 className="font-semibold mb-2">Call Support</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Speak directly with our support team
+              </p>
+              <Button variant="outline" className="w-full">
+                +998 71 123 45 67
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+            <CardContent className="p-6 text-center">
+              <Mail className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+              <h3 className="font-semibold mb-2">Email Support</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Send us a detailed email about your issue
+              </p>
+              <Button variant="outline" className="w-full">
+                support@uzpharm.uz
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Help Categories */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Browse by Category</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {helpCategories.map((category) => (
+              <Card key={category.name} className="cursor-pointer hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <category.icon className="h-8 w-8 text-blue-500 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2">{category.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {category.description}
+                  </p>
+                  <Badge variant="secondary">{category.articles} articles</Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+          
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
               >
-                <Card className={`${item.color} border-2 hover:shadow-lg transition-shadow cursor-pointer`}>
-                  <CardContent className="p-6 text-center">
-                    <div className={`w-12 h-12 mx-auto mb-4 rounded-xl flex items-center justify-center ${
-                      item.urgent ? 'bg-red-600' : 'bg-primary'
-                    }`}>
-                      <item.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <h3 className="font-semibold mb-2 text-foreground dark:text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
-                      {item.description}
-                    </p>
-                    <Button
-                      variant={item.urgent ? "destructive" : "default"}
-                      size="sm"
-                      className="w-full"
-                      onClick={() => {
-                        if (item.link) {
-                          window.location.href = item.link;
-                        } else if (item.urgent) {
-                          window.open('tel:103');
-                        }
-                      }}
-                      data-testid={`quick-help-${index}`}
-                    >
-                      {item.action}
-                      {!item.urgent && <ArrowRight className="w-4 h-4 ml-2" />}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                {category}
+              </Button>
             ))}
           </div>
 
-          {/* FAQ Categories */}
-          <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-center mb-8 text-foreground dark:text-foreground">
-              Frequently Asked Questions
-            </h2>
-            
-            {(searchQuery ? filteredFaqs : faqCategories).map((category, categoryIndex) => (
-              <motion.div
-                key={categoryIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-              >
-                <Card className="bg-card dark:bg-card border-border dark:border-border">
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-foreground dark:text-foreground">
-                      <div className={`w-10 h-10 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center mr-4`}>
-                        <category.icon className="h-5 w-5 text-white" />
+          {/* FAQ List */}
+          <Card>
+            <CardContent className="p-6">
+              <Accordion type="single" collapsible className="w-full">
+                {filteredFaqs.map((faq) => (
+                  <AccordionItem key={faq.id} value={faq.id}>
+                    <AccordionTrigger className="text-left">
+                      <div className="flex items-center space-x-3">
+                        <HelpCircle className="h-5 w-5 text-blue-500" />
+                        <span>{faq.question}</span>
+                        <Badge variant="outline" className="ml-auto">
+                          {faq.category}
+                        </Badge>
                       </div>
-                      {category.title}
-                      <Badge variant="secondary" className="ml-auto">
-                        {category.faqs.length} questions
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
-                      {category.faqs.map((faq, faqIndex) => (
-                        <AccordionItem key={faqIndex} value={`item-${categoryIndex}-${faqIndex}`}>
-                          <AccordionTrigger className="text-left">
-                            {faq.question}
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <p className="text-muted-foreground dark:text-muted-foreground leading-relaxed">
-                              {faq.answer}
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pl-8 pr-4 pb-4">
+                        <p className="text-muted-foreground leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
 
-          {/* Contact Support */}
-          <motion.div
-            className="mt-12 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Card className="bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-primary/20">
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold mb-4 text-foreground dark:text-foreground">
-                  Still need help?
-                </h3>
-                <p className="text-muted-foreground dark:text-muted-foreground mb-6">
-                  Our support team is available 24/7 to assist you with any questions or concerns
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Button onClick={() => window.location.href = '/contact'} data-testid="contact-support-btn">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Contact Support
-                  </Button>
-                  <Button variant="outline" onClick={() => window.open('tel:+998711234567')} data-testid="call-support-btn">
-                    <Phone className="w-4 h-4 mr-2" />
-                    Call Support
-                  </Button>
-                  <Button variant="outline" onClick={() => window.open('mailto:support@uzpharm.digital')} data-testid="email-support-btn">
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email Support
-                  </Button>
+              {filteredFaqs.length === 0 && (
+                <div className="text-center py-8">
+                  <HelpCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    No FAQs found matching your search criteria.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Contact Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Still Need Help?</CardTitle>
+            <CardDescription>
+              Our support team is available to assist you
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center space-x-3">
+                <Clock className="h-6 w-6 text-blue-500" />
+                <div>
+                  <h4 className="font-medium">Support Hours</h4>
+                  <p className="text-sm text-muted-foreground">
+                    24/7 for urgent medical questions<br />
+                    9 AM - 6 PM for general support
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Users className="h-6 w-6 text-green-500" />
+                <div>
+                  <h4 className="font-medium">Response Time</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Live chat: Immediate<br />
+                    Email: Within 24 hours
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Shield className="h-6 w-6 text-purple-500" />
+                <div>
+                  <h4 className="font-medium">Language Support</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Uzbek, Russian, English<br />
+                    Professional medical interpreters
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

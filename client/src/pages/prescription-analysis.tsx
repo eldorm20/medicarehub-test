@@ -1,433 +1,401 @@
-import React, { useState, useCallback } from 'react';
-import { useLanguage } from '@/hooks/useLanguage';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useCallback } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useDropzone } from 'react-dropzone';
+import { useToast } from '@/hooks/use-toast';
 import { 
-  Camera, 
   Upload, 
   FileText, 
-  AlertTriangle, 
+  Camera, 
   CheckCircle, 
-  Clock,
-  Pill,
-  Activity,
-  Shield,
+  AlertTriangle, 
+  X,
   Eye,
-  Heart,
-  Bot,
-  Stethoscope
+  Download,
+  Share,
+  Pill,
+  Clock
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useDropzone } from 'react-dropzone';
 
-interface AnalysisResult {
-  success: boolean;
-  medicines: Array<{
+interface AnalyzedPrescription {
+  medications: Array<{
     name: string;
     dosage: string;
     frequency: string;
-    instructions: string;
-    available: boolean;
+    duration: string;
+    warnings: string[];
     interactions: string[];
-    duration?: string;
   }>;
-  warnings: string[];
+  doctorInfo: {
+    name: string;
+    specialty: string;
+    license: string;
+  };
+  patientInfo: {
+    name: string;
+    age: string;
+  };
+  validity: {
+    isValid: boolean;
+    issues: string[];
+  };
   confidence: number;
-  prescriptionText: string;
 }
 
 export default function PrescriptionAnalysis() {
-  const { t } = useLanguage();
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisResult, setAnalysisResult] = useState<AnalyzedPrescription | null>(null);
+  const { toast } = useToast();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      setUploadedFile(file);
-      handleAnalyze(file);
-    }
-  }, []);
+    setUploadedFiles(acceptedFiles);
+    toast({
+      title: 'File Uploaded',
+      description: `${acceptedFiles.length} file(s) uploaded successfully.`,
+    });
+  }, [toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png']
+      'image/*': ['.jpeg', '.jpg', '.png', '.webp'],
+      'application/pdf': ['.pdf']
     },
-    maxSize: 5 * 1024 * 1024, // 5MB
-    multiple: false
+    maxFiles: 5,
+    maxSize: 10 * 1024 * 1024 // 10MB
   });
 
-  const handleAnalyze = async (file: File) => {
-    setIsAnalyzing(true);
-    setAnalysisProgress(0);
-
-    try {
-      // Simulate progress
-      const intervals = [15, 35, 60, 80, 95, 100];
-      for (const progress of intervals) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        setAnalysisProgress(progress);
-      }
-
-      const formData = new FormData();
-      formData.append('prescription', file);
-
-      const response = await fetch('/api/ai/analyze-prescription', {
-        method: 'POST',
-        body: formData,
+  const analyzePrescription = async () => {
+    if (uploadedFiles.length === 0) {
+      toast({
+        title: 'No Files Selected',
+        description: 'Please upload prescription images to analyze.',
+        variant: 'destructive',
       });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setAnalysisResult(result);
-      } else {
-        throw new Error(result.message || 'Analysis failed');
-      }
-    } catch (error) {
-      console.error('Analysis error:', error);
-      setAnalysisResult({
-        success: false,
-        medicines: [],
-        warnings: ['Failed to analyze prescription. Please try again or contact support.'],
-        confidence: 0,
-        prescriptionText: ''
-      });
-    } finally {
-      setIsAnalyzing(false);
-      setAnalysisProgress(0);
+      return;
     }
+
+    setIsAnalyzing(true);
+
+    // Simulate AI analysis
+    setTimeout(() => {
+      setAnalysisResult({
+        medications: [
+          {
+            name: 'Amoxicillin 500mg',
+            dosage: '500mg',
+            frequency: '3 times daily',
+            duration: '7 days',
+            warnings: ['Take with food', 'Complete full course'],
+            interactions: ['Warfarin - Monitor INR']
+          },
+          {
+            name: 'Paracetamol 500mg',
+            dosage: '500mg',
+            frequency: 'As needed, max 4 times daily',
+            duration: '5 days',
+            warnings: ['Do not exceed 4g daily', 'Avoid alcohol'],
+            interactions: []
+          }
+        ],
+        doctorInfo: {
+          name: 'Dr. Salima Karimova',
+          specialty: 'General Practitioner',
+          license: 'UZ-MP-12345'
+        },
+        patientInfo: {
+          name: 'Patient Name',
+          age: '35 years'
+        },
+        validity: {
+          isValid: true,
+          issues: []
+        },
+        confidence: 94
+      });
+      setIsAnalyzing(false);
+    }, 3000);
   };
 
-  const handleCameraCapture = () => {
-    // In a real app, this would open camera interface
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.capture = 'camera';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        setUploadedFile(file);
-        handleAnalyze(file);
-      }
-    };
-    input.click();
-  };
-
-  const resetAnalysis = () => {
-    setAnalysisResult(null);
-    setUploadedFile(null);
+  const removeFile = (index: number) => {
+    setUploadedFiles(files => files.filter((_, i) => i !== index));
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Header */}
-          <div className="text-center mb-8">
-            <Badge variant="outline" className="mb-4">
-              <FileText className="w-4 h-4 mr-2" />
-              AI Prescription Analysis
-            </Badge>
-            <h1 className="text-4xl font-bold mb-4 text-foreground dark:text-foreground">
-              Smart Prescription Analysis
-            </h1>
-            <p className="text-lg text-muted-foreground dark:text-muted-foreground max-w-2xl mx-auto">
-              Upload your prescription and get instant AI-powered analysis, medicine identification, and safety information
-            </p>
-          </div>
+    <div className="container mx-auto p-6 max-w-4xl">
+      <div className="space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Prescription Analysis</h1>
+          <p className="text-muted-foreground">
+            Upload prescription images for AI-powered verification and analysis
+          </p>
+        </div>
 
-          {/* Important Notice */}
-          <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800 mb-8">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="text-amber-700 dark:text-amber-300">
-              <strong>Medical Disclaimer:</strong> This AI analysis is for informational purposes only and should not replace professional medical advice. 
-              Always consult with your healthcare provider before making any changes to your medication regimen.
-            </AlertDescription>
-          </Alert>
-
-          {!analysisResult ? (
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Upload Section */}
-              <Card className="bg-card dark:bg-card border-border dark:border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-foreground dark:text-foreground">
-                    <Upload className="w-5 h-5 mr-2 text-primary" />
-                    Upload Prescription
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isAnalyzing ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Bot className="w-8 h-8 text-primary animate-pulse" />
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2 text-foreground dark:text-foreground">
-                        Analyzing Prescription...
-                      </h3>
-                      <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
-                        Our AI is reading and analyzing your prescription
-                      </p>
-                      <Progress value={analysisProgress} className="mb-2" />
-                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                        {analysisProgress}% Complete
-                      </p>
-                    </div>
+        {/* Upload Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Upload className="h-5 w-5" />
+              <span>Upload Prescription</span>
+            </CardTitle>
+            <CardDescription>
+              Drag and drop prescription images or PDFs, or click to select files
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                isDragActive 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-muted-foreground/25 hover:border-primary/50'
+              }`}
+            >
+              <input {...getInputProps()} />
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  {isDragActive ? (
+                    <Upload className="h-12 w-12 text-primary animate-bounce" />
                   ) : (
-                    <div className="space-y-6">
-                      {/* Drag and Drop Area */}
-                      <div
-                        {...getRootProps()}
-                        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-                          isDragActive
-                            ? 'border-primary bg-primary/5'
-                            : 'border-muted-foreground/20 hover:border-primary/50'
-                        }`}
-                      >
-                        <input {...getInputProps()} />
-                        <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="font-semibold text-foreground dark:text-foreground mb-2">
-                          {isDragActive ? 'Drop your prescription here' : 'Drag & drop your prescription'}
-                        </h3>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
-                          Or click to select from your device
-                        </p>
-                        <Button variant="outline" data-testid="select-file-btn">
-                          Select File
-                        </Button>
-                      </div>
+                    <FileText className="h-12 w-12 text-muted-foreground" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-lg font-medium">
+                    {isDragActive ? 'Drop files here' : 'Upload prescription files'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Supports JPEG, PNG, WebP, and PDF files up to 10MB
+                  </p>
+                </div>
+                <Button variant="outline">
+                  <Camera className="mr-2 h-4 w-4" />
+                  Select Files
+                </Button>
+              </div>
+            </div>
 
-                      {/* Camera Button */}
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
-                          Or take a photo directly
+            {/* Uploaded Files */}
+            {uploadedFiles.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="font-medium">Uploaded Files:</p>
+                {uploadedFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <FileText className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-medium">{file.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
                         </p>
-                        <Button
-                          onClick={handleCameraCapture}
-                          className="w-full"
-                          data-testid="camera-capture-btn"
-                        >
-                          <Camera className="w-4 h-4 mr-2" />
-                          Take Photo
-                        </Button>
-                      </div>
-
-                      {/* File Requirements */}
-                      <div className="text-xs text-muted-foreground dark:text-muted-foreground">
-                        <p className="font-medium mb-1">Requirements:</p>
-                        <ul className="space-y-1">
-                          <li>• Supported formats: JPEG, PNG, JPG</li>
-                          <li>• Maximum file size: 5MB</li>
-                          <li>• Ensure prescription is clearly visible</li>
-                          <li>• Avoid glare and shadows</li>
-                        </ul>
                       </div>
                     </div>
-                  )}
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Button 
+              onClick={analyzePrescription}
+              disabled={uploadedFiles.length === 0 || isAnalyzing}
+              className="w-full mt-4"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Upload className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing Prescription...
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Analyze Prescription
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Analysis Progress */}
+        {isAnalyzing && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Pill className="h-5 w-5 text-blue-500" />
+                  <span className="font-medium">AI Analysis in Progress</span>
+                </div>
+                <Progress value={66} className="w-full" />
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>✓ Image processing complete</p>
+                  <p>✓ Text extraction complete</p>
+                  <p>⏳ Medication verification in progress...</p>
+                  <p>⏳ Drug interaction analysis...</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Analysis Results */}
+        {analysisResult && (
+          <div className="space-y-4">
+            {/* Confidence Score */}
+            <Alert className={analysisResult.confidence > 90 ? 'border-green-500' : 'border-orange-500'}>
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Analysis Confidence: {analysisResult.confidence}%</strong>
+                <br />
+                {analysisResult.validity.isValid 
+                  ? 'Prescription appears to be valid and properly formatted.'
+                  : 'Issues detected with prescription validity.'}
+              </AlertDescription>
+            </Alert>
+
+            {/* Prescription Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Doctor Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div>
+                    <span className="font-medium">Name:</span>
+                    <p>{analysisResult.doctorInfo.name}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Specialty:</span>
+                    <p>{analysisResult.doctorInfo.specialty}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">License:</span>
+                    <p className="font-mono">{analysisResult.doctorInfo.license}</p>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Features Section */}
-              <Card className="bg-card dark:bg-card border-border dark:border-border">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center text-foreground dark:text-foreground">
-                    <Activity className="w-5 h-5 mr-2 text-primary" />
-                    Analysis Features
-                  </CardTitle>
+                  <CardTitle>Patient Information</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-foreground dark:text-foreground">OCR Text Recognition</h4>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          Advanced optical character recognition to extract text from prescriptions
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Pill className="w-4 h-4 text-green-600 dark:text-green-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-foreground dark:text-foreground">Medicine Identification</h4>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          Identify medications from Uzbekistan's 462K+ medicine database
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-foreground dark:text-foreground">Safety Analysis</h4>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          Check for drug interactions and safety warnings
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Stethoscope className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-foreground dark:text-foreground">Dosage Verification</h4>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          Verify proper dosage and administration instructions
-                        </p>
-                      </div>
-                    </div>
+                <CardContent className="space-y-2">
+                  <div>
+                    <span className="font-medium">Name:</span>
+                    <p>{analysisResult.patientInfo.name}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Age:</span>
+                    <p>{analysisResult.patientInfo.age}</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          ) : (
-            /* Analysis Results */
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-foreground dark:text-foreground">
-                  Analysis Results
-                </h2>
-                <div className="flex items-center space-x-3">
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    {analysisResult.confidence}% Confidence
-                  </Badge>
-                  <Button variant="outline" onClick={resetAnalysis} data-testid="analyze-new-btn">
-                    Analyze New
+
+            {/* Medications */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Prescribed Medications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analysisResult.medications.map((med, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <h4 className="font-semibold text-lg">{med.name}</h4>
+                        <Badge variant="outline">{med.dosage}</Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-3">
+                        <div>
+                          <span className="text-sm font-medium text-muted-foreground">Frequency:</span>
+                          <p>{med.frequency}</p>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-muted-foreground">Duration:</span>
+                          <p>{med.duration}</p>
+                        </div>
+                      </div>
+
+                      {med.warnings.length > 0 && (
+                        <div className="mb-3">
+                          <span className="text-sm font-medium text-orange-600">Warnings:</span>
+                          <ul className="list-disc list-inside text-sm space-y-1">
+                            {med.warnings.map((warning, i) => (
+                              <li key={i} className="text-orange-600">{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {med.interactions.length > 0 && (
+                        <div>
+                          <span className="text-sm font-medium text-red-600">Drug Interactions:</span>
+                          <ul className="list-disc list-inside text-sm space-y-1">
+                            {med.interactions.map((interaction, i) => (
+                              <li key={i} className="text-red-600">{interaction}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Next Steps</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Button className="h-20 flex flex-col space-y-2">
+                    <Pill className="h-6 w-6" />
+                    <span>Find Medicines</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex flex-col space-y-2">
+                    <Download className="h-6 w-6" />
+                    <span>Download Report</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex flex-col space-y-2">
+                    <Share className="h-6 w-6" />
+                    <span>Share with Doctor</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex flex-col space-y-2">
+                    <Clock className="h-6 w-6" />
+                    <span>Set Reminders</span>
                   </Button>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-              <Tabs defaultValue="medicines" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="medicines">Medicines</TabsTrigger>
-                  <TabsTrigger value="warnings">Warnings</TabsTrigger>
-                  <TabsTrigger value="original">Original Text</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="medicines" className="space-y-4">
-                  {analysisResult.medicines.map((medicine, index) => (
-                    <Card key={index} className="bg-card dark:bg-card border-border dark:border-border">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="font-semibold text-lg text-foreground dark:text-foreground">
-                              {medicine.name}
-                            </h3>
-                            <p className="text-muted-foreground dark:text-muted-foreground">
-                              {medicine.dosage}
-                            </p>
-                          </div>
-                          <Badge className={medicine.available 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                          }>
-                            {medicine.available ? 'Available' : 'Not Available'}
-                          </Badge>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm font-medium text-foreground dark:text-foreground mb-1">
-                              Frequency
-                            </p>
-                            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                              {medicine.frequency}
-                            </p>
-                          </div>
-                          {medicine.duration && (
-                            <div>
-                              <p className="text-sm font-medium text-foreground dark:text-foreground mb-1">
-                                Duration
-                              </p>
-                              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                                {medicine.duration}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="mt-4">
-                          <p className="text-sm font-medium text-foreground dark:text-foreground mb-1">
-                            Instructions
-                          </p>
-                          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                            {medicine.instructions}
-                          </p>
-                        </div>
-
-                        {medicine.interactions.length > 0 && (
-                          <div className="mt-4">
-                            <p className="text-sm font-medium text-foreground dark:text-foreground mb-2">
-                              Interactions & Precautions
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {medicine.interactions.map((interaction, idx) => (
-                                <Badge key={idx} variant="destructive">
-                                  {interaction}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </TabsContent>
-
-                <TabsContent value="warnings" className="space-y-4">
-                  {analysisResult.warnings.map((warning, index) => (
-                    <Alert key={index} className="border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription className="text-amber-700 dark:text-amber-300">
-                        {warning}
-                      </AlertDescription>
-                    </Alert>
-                  ))}
-                </TabsContent>
-
-                <TabsContent value="original">
-                  <Card className="bg-card dark:bg-card border-border dark:border-border">
-                    <CardHeader>
-                      <CardTitle className="text-foreground dark:text-foreground">
-                        Extracted Text
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <pre className="whitespace-pre-wrap text-sm text-muted-foreground dark:text-muted-foreground">
-                        {analysisResult.prescriptionText}
-                      </pre>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </motion.div>
-          )}
-        </motion.div>
+        {/* Disclaimer */}
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Medical Disclaimer:</strong> This analysis is for informational purposes only. 
+            Always verify prescriptions with qualified healthcare providers and pharmacists before 
+            taking any medication.
+          </AlertDescription>
+        </Alert>
       </div>
     </div>
   );

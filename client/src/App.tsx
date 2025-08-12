@@ -43,9 +43,7 @@ function Router() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Login />;
-  }
+  // Don't force login on all pages - allow public access to home and auth pages
 
   const getDashboardComponent = () => {
     switch (user?.role) {
@@ -68,6 +66,8 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/auth/login" component={Login} />
+          <Route path="/auth/register" component={Login} />
           <Route path="/dashboard" component={DashboardComponent} />
           <Route path="/client-dashboard" component={ClientDashboard} />
           <Route path="/seller-dashboard" component={PharmacySellerDashboard} />

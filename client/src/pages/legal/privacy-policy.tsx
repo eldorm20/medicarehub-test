@@ -1,396 +1,253 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Shield, 
-  Calendar, 
-  Lock, 
-  Eye,
-  Database,
-  UserCheck,
-  Globe,
-  Phone,
-  Mail,
-  FileText
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Shield, Lock, Eye, FileText } from 'lucide-react';
 
-export default function PrivacyPolicyPage() {
-  const lastUpdated = "December 1, 2024";
-  const effectiveDate = "January 1, 2025";
-
-  const sections = [
-    {
-      title: "1. Information We Collect",
-      icon: Database,
-      content: [
-        "Personal Information: Name, email address, phone number, date of birth, address, and profile photo.",
-        "Health Information: Medical history, prescription information, allergies, chronic conditions, and AI consultation data.",
-        "Usage Data: Information about how you use our platform, including search queries, page views, and feature usage.",
-        "Device Information: IP address, browser type, device type, operating system, and unique device identifiers.",
-        "Location Data: General location information for delivery services and pharmacy recommendations.",
-        "Payment Information: Payment method details (processed securely by our payment partners)."
-      ]
-    },
-    {
-      title: "2. How We Use Your Information",
-      icon: UserCheck,
-      content: [
-        "Provide AI-powered medical consultations and health recommendations.",
-        "Process medicine orders and manage prescription verification.",
-        "Connect you with licensed pharmacies and healthcare providers.",
-        "Personalize your experience and improve our services.",
-        "Send important notifications about your orders and health reminders.",
-        "Ensure platform security and prevent fraudulent activities.",
-        "Comply with legal obligations and regulatory requirements.",
-        "Analyze usage patterns to improve our AI algorithms and platform functionality."
-      ]
-    },
-    {
-      title: "3. Health Information Protection",
-      icon: Lock,
-      content: [
-        "All health information is encrypted both in transit and at rest using industry-standard AES-256 encryption.",
-        "Access to health data is strictly limited to authorized personnel on a need-to-know basis.",
-        "We implement role-based access controls to ensure only relevant staff can access specific types of information.",
-        "Health data is stored separately from other personal information with additional security measures.",
-        "We maintain detailed audit logs of all access to and changes made to health information.",
-        "Regular security assessments and penetration testing are conducted to ensure data protection.",
-        "We comply with international healthcare data protection standards and Uzbekistan's personal data protection laws."
-      ]
-    },
-    {
-      title: "4. Information Sharing and Disclosure",
-      icon: Eye,
-      content: [
-        "Licensed Pharmacies: Order information necessary to fulfill your medicine purchases.",
-        "Healthcare Providers: Prescription and health information when you choose to share it.",
-        "AI Service Providers: Anonymized data for improving AI algorithms (no personal identifiers).",
-        "Payment Processors: Transaction information necessary to process payments (Click, Payme).",
-        "Delivery Services: Contact and address information for order delivery (Yandex Delivery).",
-        "Legal Compliance: When required by law, court order, or regulatory authorities.",
-        "We never sell your personal or health information to third parties for marketing purposes.",
-        "All data sharing is governed by strict data processing agreements that ensure the same level of protection."
-      ]
-    },
-    {
-      title: "5. Data Retention",
-      icon: FileText,
-      content: [
-        "Personal account information is retained while your account is active and for 7 years after account closure.",
-        "Health consultation data is retained for 10 years to support continuity of care and legal requirements.",
-        "Prescription information is retained for 5 years as required by Uzbekistan pharmaceutical regulations.",
-        "Order history is retained for 3 years for customer service and warranty purposes.",
-        "Anonymous usage analytics may be retained indefinitely for service improvement.",
-        "You can request deletion of certain data types, subject to legal and regulatory requirements.",
-        "We automatically delete temporary data (such as session tokens) according to security best practices."
-      ]
-    },
-    {
-      title: "6. Your Rights and Choices",
-      icon: UserCheck,
-      content: [
-        "Access: Request a copy of the personal information we have about you.",
-        "Correction: Update or correct inaccurate personal information.",
-        "Deletion: Request deletion of your personal information (subject to legal requirements).",
-        "Portability: Request your data in a structured, machine-readable format.",
-        "Restriction: Request limitation of processing of your personal information.",
-        "Objection: Object to certain types of processing, such as for marketing purposes.",
-        "Consent Withdrawal: Withdraw consent for processing that is based on consent.",
-        "Complaint: File a complaint with relevant data protection authorities."
-      ]
-    },
-    {
-      title: "7. Cookies and Tracking Technologies",
-      icon: Globe,
-      content: [
-        "Essential Cookies: Required for platform functionality, security, and user authentication.",
-        "Analytics Cookies: Help us understand how users interact with our platform to improve services.",
-        "Preference Cookies: Remember your settings and preferences for a personalized experience.",
-        "Marketing Cookies: Used to deliver relevant advertisements and measure their effectiveness.",
-        "Third-party Cookies: Some features may use cookies from trusted partners (Google Analytics, payment processors).",
-        "You can control cookie preferences through your browser settings.",
-        "Disabling certain cookies may limit platform functionality."
-      ]
-    },
-    {
-      title: "8. International Data Transfers",
-      icon: Globe,
-      content: [
-        "Your data is primarily stored and processed in Uzbekistan.",
-        "Some services (AI processing, analytics) may involve transfers to countries with adequate data protection laws.",
-        "All international transfers are protected by appropriate safeguards such as Standard Contractual Clauses.",
-        "We ensure that any country receiving your data has adequate data protection standards.",
-        "You have the right to request information about international transfers affecting your data."
-      ]
-    },
-    {
-      title: "9. Children's Privacy",
-      icon: Shield,
-      content: [
-        "Our platform is not intended for children under 16 years of age.",
-        "We do not knowingly collect personal information from children under 16.",
-        "If we become aware that a child under 16 has provided us with personal information, we will delete it.",
-        "Parents or guardians can create accounts for children under their supervision.",
-        "Special protections apply to any health information of minors.",
-        "If you believe a child has provided us with personal information, please contact us immediately."
-      ]
-    },
-    {
-      title: "10. Security Measures",
-      icon: Lock,
-      content: [
-        "End-to-end encryption for all sensitive health communications.",
-        "Multi-factor authentication for account access and sensitive operations.",
-        "Regular security audits and vulnerability assessments.",
-        "Employee training on data protection and privacy best practices.",
-        "Incident response procedures for potential data breaches.",
-        "Network security measures including firewalls and intrusion detection systems.",
-        "Secure development practices and code review processes.",
-        "Regular backups with encryption and secure storage."
-      ]
-    },
-    {
-      title: "11. AI and Algorithm Transparency",
-      icon: Database,
-      content: [
-        "Our AI systems are trained on anonymized and aggregated health data.",
-        "We use explainable AI techniques to provide transparent health recommendations.",
-        "AI decisions are always labeled as such and include appropriate disclaimers.",
-        "Users can request information about how AI recommendations are generated.",
-        "We continuously monitor AI systems for bias and accuracy.",
-        "AI training data is carefully curated and does not include personal identifiers.",
-        "We maintain human oversight over AI recommendations, especially for critical health matters."
-      ]
-    },
-    {
-      title: "12. Breach Notification",
-      icon: Shield,
-      content: [
-        "We will notify you within 72 hours of discovering any data breach that may affect your personal information.",
-        "Notifications will include the nature of the breach, the data involved, and steps being taken to address it.",
-        "We will also notify relevant authorities as required by Uzbekistan data protection laws.",
-        "In case of a health data breach, we will provide additional support and guidance.",
-        "We maintain a comprehensive incident response plan to minimize the impact of any security incidents."
-      ]
-    }
-  ];
-
+export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto p-6 max-w-4xl">
+      <div className="space-y-6">
         {/* Header */}
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-primary/10 mb-6">
-            <Shield className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium text-primary">Privacy & Data Protection</span>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Privacy Policy
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Learn how we collect, use, and protect your personal and health information 
-            on the UzPharm Digital platform.
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
+          <p className="text-muted-foreground">
+            Last updated: January 15, 2024
           </p>
-        </motion.div>
+        </div>
 
-        {/* Document Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Alert className="mb-8 border-primary/20 bg-primary/5">
-            <Lock className="h-4 w-4 text-primary" />
-            <AlertDescription className="text-foreground">
-              <div className="flex items-center justify-between">
-                <div>
-                  <strong>Your Privacy Matters:</strong> We are committed to protecting your personal 
-                  and health information with the highest standards of security and transparency.
-                </div>
-                <div className="flex space-x-4 text-sm">
-                  <Badge variant="outline" className="flex items-center space-x-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>Updated: {lastUpdated}</span>
-                  </Badge>
-                  <Badge variant="outline" className="flex items-center space-x-1">
-                    <FileText className="h-3 w-3" />
-                    <span>Effective: {effectiveDate}</span>
-                  </Badge>
-                </div>
-              </div>
+        {/* Privacy Notice */}
+        <Alert>
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            Your privacy and the security of your medical information are our top priorities. 
+            This policy explains how we collect, use, and protect your personal data.
+          </AlertDescription>
+        </Alert>
+
+        {/* Privacy Content */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Lock className="h-5 w-5" />
+              <span>Privacy Policy</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="prose dark:prose-invert max-w-none">
+            <h2>1. Information We Collect</h2>
+            <p>
+              We collect information to provide better healthcare services and improve your experience 
+              on UzPharm Digital:
+            </p>
+
+            <h3>Personal Information</h3>
+            <ul>
+              <li><strong>Account Information:</strong> Name, email, phone number, date of birth</li>
+              <li><strong>Address Information:</strong> Delivery and billing addresses</li>
+              <li><strong>Payment Information:</strong> Payment method details (processed securely)</li>
+              <li><strong>Identification:</strong> Government ID for prescription verification</li>
+            </ul>
+
+            <h3>Health Information</h3>
+            <ul>
+              <li><strong>Consultation Data:</strong> Symptoms, health concerns, AI consultation history</li>
+              <li><strong>Prescription Information:</strong> Uploaded prescriptions and analysis results</li>
+              <li><strong>Medical History:</strong> Previous consultations and health records (with consent)</li>
+              <li><strong>Medication Data:</strong> Current medications and allergy information</li>
+            </ul>
+
+            <h3>Technical Information</h3>
+            <ul>
+              <li><strong>Device Data:</strong> Device type, operating system, browser information</li>
+              <li><strong>Usage Analytics:</strong> How you interact with our platform</li>
+              <li><strong>Location Data:</strong> General location for pharmacy recommendations</li>
+              <li><strong>Cookies:</strong> Preferences and session management</li>
+            </ul>
+
+            <h2>2. How We Use Your Information</h2>
+            <p>
+              We use your information solely for providing healthcare services and improving our platform:
+            </p>
+
+            <h3>Service Provision</h3>
+            <ul>
+              <li>Provide AI medical consultations and health guidance</li>
+              <li>Process prescription analysis and verification</li>
+              <li>Connect you with licensed pharmacies and healthcare providers</li>
+              <li>Facilitate medicine orders and delivery coordination</li>
+              <li>Maintain your health records and consultation history</li>
+            </ul>
+
+            <h3>Safety and Compliance</h3>
+            <ul>
+              <li>Verify prescriptions and prevent medication errors</li>
+              <li>Check for drug interactions and allergies</li>
+              <li>Comply with pharmaceutical regulations and licensing requirements</li>
+              <li>Detect and prevent fraudulent activities</li>
+            </ul>
+
+            <h3>Platform Improvement</h3>
+            <ul>
+              <li>Analyze usage patterns to improve our AI algorithms</li>
+              <li>Enhance user experience and platform functionality</li>
+              <li>Develop new features and services</li>
+              <li>Conduct research to advance digital healthcare (anonymized data only)</li>
+            </ul>
+
+            <h2>3. Information Sharing and Disclosure</h2>
+            <p>
+              We share your information only when necessary for service provision or as required by law:
+            </p>
+
+            <h3>Healthcare Partners</h3>
+            <ul>
+              <li><strong>Licensed Pharmacies:</strong> Prescription and delivery information</li>
+              <li><strong>Healthcare Providers:</strong> With your explicit consent only</li>
+              <li><strong>Medical Professionals:</strong> For complex consultation cases (anonymized)</li>
+            </ul>
+
+            <h3>Service Providers</h3>
+            <ul>
+              <li><strong>Payment Processors:</strong> Click, Payme, and authorized payment services</li>
+              <li><strong>Delivery Partners:</strong> Yandex Delivery and logistics providers</li>
+              <li><strong>Technology Partners:</strong> Secure cloud hosting and AI services</li>
+            </ul>
+
+            <h3>Legal Requirements</h3>
+            <ul>
+              <li>Compliance with Uzbekistan's healthcare regulations</li>
+              <li>Response to valid legal requests and court orders</li>
+              <li>Protection of rights, safety, and security</li>
+              <li>Regulatory reporting as required by law</li>
+            </ul>
+
+            <h2>4. Data Security</h2>
+            <p>
+              We implement comprehensive security measures to protect your sensitive health information:
+            </p>
+
+            <h3>Technical Safeguards</h3>
+            <ul>
+              <li><strong>Encryption:</strong> End-to-end encryption for all medical data</li>
+              <li><strong>Secure Storage:</strong> SOC 2 compliant cloud infrastructure</li>
+              <li><strong>Access Controls:</strong> Role-based access with multi-factor authentication</li>
+              <li><strong>Regular Audits:</strong> Security assessments and penetration testing</li>
+            </ul>
+
+            <h3>Operational Safeguards</h3>
+            <ul>
+              <li>Staff training on privacy and security protocols</li>
+              <li>Regular software updates and security patches</li>
+              <li>Incident response and breach notification procedures</li>
+              <li>Data backup and disaster recovery plans</li>
+            </ul>
+
+            <h2>5. Your Privacy Rights</h2>
+            <p>
+              You have significant control over your personal and health information:
+            </p>
+
+            <h3>Access and Control</h3>
+            <ul>
+              <li><strong>View Your Data:</strong> Access all information we have about you</li>
+              <li><strong>Update Information:</strong> Correct or update your personal details</li>
+              <li><strong>Download Data:</strong> Export your health records and consultation history</li>
+              <li><strong>Delete Account:</strong> Request complete account and data deletion</li>
+            </ul>
+
+            <h3>Consent Management</h3>
+            <ul>
+              <li>Withdraw consent for data processing at any time</li>
+              <li>Control which healthcare providers can access your information</li>
+              <li>Manage communication preferences and notifications</li>
+              <li>Opt out of research and analytics (anonymized data)</li>
+            </ul>
+
+            <h2>6. Data Retention</h2>
+            <p>
+              We retain your information only as long as necessary for service provision and legal compliance:
+            </p>
+            <ul>
+              <li><strong>Active Accounts:</strong> Data retained while account is active</li>
+              <li><strong>Medical Records:</strong> 7 years as required by healthcare regulations</li>
+              <li><strong>Prescription Data:</strong> 5 years for pharmaceutical compliance</li>
+              <li><strong>Payment Records:</strong> 3 years for financial and tax purposes</li>
+              <li><strong>Anonymous Analytics:</strong> Indefinitely for research and improvement</li>
+            </ul>
+
+            <h2>7. International Data Transfers</h2>
+            <p>
+              Your data is primarily stored and processed within Uzbekistan. When international 
+              transfers are necessary:
+            </p>
+            <ul>
+              <li>Transfers are limited to trusted partners with adequate protections</li>
+              <li>All transfers comply with Uzbekistan's data protection laws</li>
+              <li>Data processing agreements ensure equivalent protection standards</li>
+              <li>You will be notified of any significant changes to data location</li>
+            </ul>
+
+            <h2>8. Children's Privacy</h2>
+            <p>
+              UzPharm Digital is not intended for children under 18 without parental supervision:
+            </p>
+            <ul>
+              <li>Parental consent required for users under 18</li>
+              <li>Parents have access to and control over their children's accounts</li>
+              <li>Enhanced privacy protections for minors</li>
+              <li>Special procedures for handling children's health information</li>
+            </ul>
+
+            <h2>9. Cookies and Tracking</h2>
+            <p>
+              We use cookies and similar technologies to enhance your experience:
+            </p>
+            <ul>
+              <li><strong>Essential Cookies:</strong> Required for platform functionality</li>
+              <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+              <li><strong>Analytics Cookies:</strong> Help us improve our services (optional)</li>
+              <li><strong>Security Cookies:</strong> Protect against fraud and unauthorized access</li>
+            </ul>
+
+            <h2>10. Changes to This Policy</h2>
+            <p>
+              We may update this privacy policy to reflect changes in our practices or legal requirements:
+            </p>
+            <ul>
+              <li>Material changes will be communicated via email and platform notifications</li>
+              <li>Non-material changes will be posted with updated effective dates</li>
+              <li>Continued use after changes constitutes acceptance</li>
+              <li>Historical versions are archived and available upon request</li>
+            </ul>
+
+            <h2>11. Contact Us</h2>
+            <p>
+              For privacy-related questions, concerns, or requests:
+            </p>
+            <ul>
+              <li><strong>Privacy Officer:</strong> privacy@uzpharm.digital</li>
+              <li><strong>Data Protection:</strong> dpo@uzpharm.digital</li>
+              <li><strong>Phone:</strong> +998 71 123 45 67 (Privacy Department)</li>
+              <li><strong>Mail:</strong> Privacy Department, UzPharm Digital, Innovation District, Building 42, Tashkent 100084, Uzbekistan</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        {/* Footer Notice */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Alert>
+            <Eye className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Transparency:</strong> We believe in clear, honest communication about your data. 
+              If you have questions, we're here to help.
             </AlertDescription>
           </Alert>
-        </motion.div>
 
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Table of Contents */}
-          <motion.div 
-            className="lg:col-span-1"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div className="sticky top-24">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Table of Contents</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <nav className="space-y-2">
-                    {sections.map((section, index) => (
-                      <a
-                        key={index}
-                        href={`#section-${index}`}
-                        className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-primary transition-colors py-1 px-2 rounded hover:bg-primary/5"
-                      >
-                        <section.icon className="h-3 w-3" />
-                        <span>{section.title}</span>
-                      </a>
-                    ))}
-                  </nav>
-                </CardContent>
-              </Card>
-
-              {/* Privacy Contact */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center">
-                    <Phone className="h-4 w-4 mr-2 text-primary" />
-                    Privacy Contact
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex items-center space-x-2 text-muted-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span>privacy@uzpharm.digital</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-muted-foreground">
-                    <Phone className="h-4 w-4" />
-                    <span>+998 71 123 45 67</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-muted-foreground">
-                    <Globe className="h-4 w-4" />
-                    <span>Data Protection Officer</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Links */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="text-sm">Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <button className="w-full text-left text-sm text-muted-foreground hover:text-primary transition-colors py-1 px-2 rounded hover:bg-primary/5">
-                    Download My Data
-                  </button>
-                  <button className="w-full text-left text-sm text-muted-foreground hover:text-primary transition-colors py-1 px-2 rounded hover:bg-primary/5">
-                    Update Preferences
-                  </button>
-                  <button className="w-full text-left text-sm text-muted-foreground hover:text-primary transition-colors py-1 px-2 rounded hover:bg-primary/5">
-                    Delete My Account
-                  </button>
-                </CardContent>
-              </Card>
-            </div>
-          </motion.div>
-
-          {/* Privacy Content */}
-          <motion.div 
-            className="lg:col-span-3"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Card>
-              <CardContent className="p-8">
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                  {/* Introduction */}
-                  <div className="mb-8 p-6 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                    <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center">
-                      <Shield className="h-5 w-5 mr-2 text-primary" />
-                      Our Commitment to Your Privacy
-                    </h2>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      At UzPharm Digital, we understand that your health information is deeply personal and sensitive. 
-                      This Privacy Policy explains how we collect, use, protect, and share your information when you 
-                      use our AI-powered digital pharmacy platform. We are committed to maintaining the highest 
-                      standards of privacy protection and transparency in accordance with the laws of the Republic 
-                      of Uzbekistan and international best practices.
-                    </p>
-                  </div>
-
-                  {/* Legal Framework */}
-                  <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                    <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
-                      <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                      Legal Framework
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                      Our privacy practices comply with:
-                    </p>
-                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                      <li>Law of the Republic of Uzbekistan "On Personal Data" (2019)</li>
-                      <li>Law "On Medicines and Pharmaceutical Activity"</li>
-                      <li>Regulations of the Ministry of Health of the Republic of Uzbekistan</li>
-                      <li>International healthcare data protection standards</li>
-                    </ul>
-                  </div>
-
-                  {/* Sections */}
-                  <div className="space-y-8">
-                    {sections.map((section, index) => (
-                      <div key={index} id={`section-${index}`}>
-                        <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border flex items-center">
-                          <section.icon className="h-5 w-5 mr-2 text-primary" />
-                          {section.title}
-                        </h3>
-                        <div className="space-y-3">
-                          {section.content.map((paragraph, pIndex) => (
-                            <p key={pIndex} className="text-muted-foreground text-sm leading-relaxed">
-                              {paragraph}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Contact Section */}
-                  <div className="mt-12 p-6 bg-primary/5 rounded-xl">
-                    <h3 className="text-lg font-semibold text-foreground mb-3">Contact Our Data Protection Officer</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      If you have any questions about this Privacy Policy or wish to exercise your rights, 
-                      please contact our Data Protection Officer:
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Mail className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground">Email: privacy@uzpharm.digital</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Phone className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground">Phone: +998 71 123 45 67</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Globe className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground">Address: Data Protection Office, Tashkent, Republic of Uzbekistan</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Alert>
+            <FileText className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Your Rights:</strong> You have comprehensive rights over your personal data. 
+              Contact us to exercise these rights at any time.
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     </div>
