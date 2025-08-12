@@ -84,27 +84,33 @@ export class DatabaseStorage implements IStorage {
 
   // Medicine operations
   async searchMedicines(query: string, filters: any = {}): Promise<Medicine[]> {
-    let queryBuilder = db.select().from(medicines);
+    let conditions = [];
 
     if (query) {
-      queryBuilder = queryBuilder.where(
+      conditions.push(
         sql`${medicines.title} ILIKE ${`%${query}%`} OR ${medicines.manufacturer} ILIKE ${`%${query}%`} OR ${medicines.activeIngredient} ILIKE ${`%${query}%`}`
       );
     }
 
     if (filters.country) {
-      queryBuilder = queryBuilder.where(eq(medicines.country, filters.country));
+      conditions.push(eq(medicines.country, filters.country));
     }
 
     if (filters.year) {
-      queryBuilder = queryBuilder.where(eq(medicines.year, filters.year));
+      conditions.push(eq(medicines.year, filters.year));
     }
 
     if (filters.manufacturer) {
-      queryBuilder = queryBuilder.where(ilike(medicines.manufacturer, `%${filters.manufacturer}%`));
+      conditions.push(ilike(medicines.manufacturer, `%${filters.manufacturer}%`));
     }
 
-    return await queryBuilder.limit(50).execute();
+    let queryBuilder = db.select().from(medicines);
+    
+    if (conditions.length > 0) {
+      queryBuilder = queryBuilder.where(and(...conditions));
+    }
+
+    return await queryBuilder.limit(50);
   }
 
   async getMedicine(id: string): Promise<Medicine | undefined> {

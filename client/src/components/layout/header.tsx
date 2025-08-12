@@ -3,22 +3,59 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useTheme } from '@/components/ui/theme-provider';
+import { useAuth } from '@/hooks/useAuth';
 import { i18n } from '@/lib/i18n';
-import { Moon, Sun, Heart, User, Menu, X } from 'lucide-react';
+import { Moon, Sun, Heart, User, Menu, X, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function Header() {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navigation = [
-    { name: i18n.t('navigation.home'), href: '/' },
-    { name: i18n.t('navigation.medicines'), href: '/medicines' },
-    { name: i18n.t('navigation.consultation'), href: '/consultation' },
-    { name: i18n.t('navigation.orders'), href: '/orders' },
-    { name: i18n.t('navigation.dashboard'), href: '/dashboard' },
-  ];
+  const getNavigationForRole = (role: string) => {
+    const baseNavigation = [
+      { name: i18n.t('navigation.home'), href: '/' },
+      { name: i18n.t('navigation.dashboard'), href: '/dashboard' },
+    ];
+
+    switch (role) {
+      case 'super_admin':
+        return [
+          ...baseNavigation,
+          { name: 'User Management', href: '/admin-dashboard' },
+          { name: 'Platform Analytics', href: '/analytics' },
+          { name: 'System Settings', href: '/settings' },
+        ];
+      case 'pharmacy_owner':
+        return [
+          ...baseNavigation,
+          { name: 'Branch Management', href: '/branches' },
+          { name: 'Staff Management', href: '/staff' },
+          { name: 'Financial Reports', href: '/reports' },
+          { name: 'Inventory', href: '/inventory' },
+        ];
+      case 'pharmacy_seller':
+        return [
+          ...baseNavigation,
+          { name: 'Orders', href: '/orders' },
+          { name: 'Customer Chat', href: '/chat' },
+          { name: 'Inventory', href: '/inventory' },
+        ];
+      default: // client
+        return [
+          ...baseNavigation,
+          { name: i18n.t('navigation.medicines'), href: '/medicines' },
+          { name: i18n.t('navigation.consultation'), href: '/consultation' },
+          { name: i18n.t('navigation.orders'), href: '/orders' },
+          { name: 'Symptom Checker', href: '/symptom-checker' },
+        ];
+    }
+  };
+
+  const navigation = user ? getNavigationForRole(user.role) : [];
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700">
@@ -74,19 +111,48 @@ export function Header() {
             </Button>
 
             {/* User Profile */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center space-x-2 bg-white/10 dark:bg-slate-800/50 hover:bg-white/20 dark:hover:bg-slate-700/50 backdrop-blur-sm"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center">
-                <User className="h-4 w-4 text-white" />
-              </div>
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Guest</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Client</p>
-              </div>
-            </Button>
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2 bg-white/10 dark:bg-slate-800/50 hover:bg-white/20 dark:hover:bg-slate-700/50 backdrop-blur-sm"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="hidden md:block text-left">
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {user.firstName || 'User'}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {user.role.replace('_', ' ')}
+                      </p>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="flex items-center text-red-600 dark:text-red-400">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
             {/* Mobile Menu Button */}
             <Button

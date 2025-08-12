@@ -12,7 +12,6 @@ import { useEffect } from "react";
 
 // Pages
 import Home from "@/pages/home";
-import Dashboard from "@/pages/dashboard";
 import Orders from "@/pages/orders";
 import MedicineSearch from "@/pages/medicine-search";
 import AIConsultation from "@/pages/ai-consultation";
@@ -26,8 +25,42 @@ import PrivacyPolicy from "@/pages/legal/privacy-policy";
 import MedicalDisclaimer from "@/pages/legal/medical-disclaimer";
 import NotFound from "@/pages/not-found";
 
+// Auth & Dashboards
+import Login from "@/pages/auth/login";
+import ClientDashboard from "@/pages/dashboards/client-dashboard";
+import PharmacySellerDashboard from "@/pages/dashboards/pharmacy-seller-dashboard";
+import PharmacyOwnerDashboard from "@/pages/dashboards/pharmacy-owner-dashboard";
+import SuperAdminDashboard from "@/pages/dashboards/super-admin-dashboard";
+
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  const getDashboardComponent = () => {
+    switch (user?.role) {
+      case 'super_admin':
+        return SuperAdminDashboard;
+      case 'pharmacy_owner':
+        return PharmacyOwnerDashboard;
+      case 'pharmacy_seller':
+        return PharmacySellerDashboard;
+      default:
+        return ClientDashboard;
+    }
+  };
+
+  const DashboardComponent = getDashboardComponent();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -35,12 +68,16 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/dashboard" component={DashboardComponent} />
+          <Route path="/client-dashboard" component={ClientDashboard} />
+          <Route path="/seller-dashboard" component={PharmacySellerDashboard} />
+          <Route path="/owner-dashboard" component={PharmacyOwnerDashboard} />
+          <Route path="/admin-dashboard" component={SuperAdminDashboard} />
           <Route path="/medicine-search" component={MedicineSearch} />
           <Route path="/medicines" component={MedicineSearch} />
           <Route path="/ai-consultation" component={AIConsultation} />
           <Route path="/consultation" component={AIConsultation} />
           <Route path="/orders" component={Orders} />
-          <Route path="/dashboard" component={Dashboard} />
           <Route path="/profile" component={Profile} />
           <Route path="/help-center" component={HelpCenter} />
           <Route path="/help" component={HelpCenter} />
